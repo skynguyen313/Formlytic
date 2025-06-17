@@ -1,0 +1,9 @@
+**/__pycache__/
+.env
+venv
+logs
+media
+secrets
+staticfiles
+chatbot_app/indexes/
+runtime/celerybeat-schedule*
