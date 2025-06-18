@@ -14,12 +14,10 @@ class IntentClassifier:
             llm: The language model to use for intent classification.
         """
         self.llm = llm
-        self.router_template = """Hãy xác định lĩnh vực phù hợp nhất cho câu hỏi dưới đây. Chỉ chọn một trong ba lĩnh vực sau và trả lời bằng đúng một từ:
+        self.router_template = """Hãy xác định ý định phù hợp nhất cho câu hỏi dưới đây. Chỉ chọn một trong hai lĩnh vực sau và trả lời bằng đúng một từ:
 
-        - "THÔNG TIN SINH VIÊN": Câu hỏi liên quan đến thông tin cá nhân sinh viên như mã sinh viên, tên sinh viên, khoa học, chuyên ngành học, khóa học, tên lớp học.
-        - "TƯ VẤN TÂM LÝ": Câu hỏi liên quan đến tâm lý học đường của sinh viên, bao gồm cả bài kiểm tra tâm lý.
-        - "CÔNG TÁC SINH VIÊN": Câu hỏi liên quan đến quy định, quy chế, thủ tục học vụ, học phí, học bổng, cơ sở vật chất, hoạt động và thông tin về nhà trường.
-        đối với các câu hỏi không liên quan đến các lĩnh vực trên, hãy trả lời: "CÔNG TÁC SINH VIÊN"
+        - "TTND": Khi người dùng muốn tra cứu thông tin cá nhân của người dùng khi đăng ký hệ thống.
+        - "HTGD": Khi người dùng muốn đặt câu hỏi, được giải đáp thắc mắc trên lĩnh vực của họ.
         Câu hỏi: {input}
         Lĩnh vực:
         """
@@ -45,11 +43,9 @@ class IntentClassifier:
             intent = self.router_chain.invoke({"input": user_input})
             
             # Chuẩn hóa kết quả intent
-            if "THÔNG TIN SINH VIÊN" in intent:
-                return "THÔNG TIN SINH VIÊN"
-            elif "TƯ VẤN TÂM LÝ" in intent:
-                return "TƯ VẤN TÂM LÝ"
-            else:
-                return "CÔNG TÁC SINH VIÊN"
+            if "TTND" in intent:
+                return "0"
+            elif "HTGD" in intent:
+                return "1"
         except Exception as e:
-            return "CÔNG TÁC SINH VIÊN" 
+            return "1" 

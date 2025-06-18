@@ -1,5 +1,5 @@
 from .state_manager import StateManager
-from core.fetchers import StudentPsychologyFetcher, StudentFetcher, StudentScoreFetcher
+from core.fetchers import CustomerPsychologyFetcher, CustomerFetcher
 
 
 class DataManager:
@@ -7,18 +7,16 @@ class DataManager:
         self.llm = llm
     
     def get_data(self, state: StateManager):
-        student_id = state["student_id"]
+        user_id = state["user_id"]
         intent = state["current_intent"]
 
-        if intent == "THÔNG TIN SINH VIÊN":
-           result_query = StudentFetcher(student_id=student_id).get_data()
+        if intent == "0":
+           result_query = CustomerFetcher(user_id=user_id).get_data()
            return {"result_query": result_query}
-        elif intent == "TƯ VẤN TÂM LÝ":
-            result_query = StudentPsychologyFetcher(student_id=student_id).get_data()
+        elif intent == "1":
+            result_query = CustomerPsychologyFetcher(user_id=user_id).get_data()
             return {"result_query": result_query}
         
-        else: # CÔNG TÁC SINH VIÊN
-            return StudentScoreFetcher(student_id=student_id).get_data()
         
     def generate_answer(self, state: StateManager):
         """Answer question using retrieved information as context and store the result in state."""
@@ -27,7 +25,7 @@ class DataManager:
 
         prompt = (
             "Given the following user question"
-            "and json data result, answer the user question."
+            "and json data result, summarize the data result in a concise way"
             "Note: If question relates to student score, keep the name of fields as is.\n\n"
             f'User Question: {input_question}\n'
             f'Data result: {data_result}\n'

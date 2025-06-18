@@ -8,7 +8,7 @@ from .rag.file_loader import Loader
 logger = logging.getLogger(__name__)
 
 
-def add_document_task_thread(document_id: int, file_path: str, id_file_filter: str):
+def add_document_task_thread(document_id: int, file_path: str):
     document = None
 
     try:
@@ -17,7 +17,7 @@ def add_document_task_thread(document_id: int, file_path: str, id_file_filter: s
         if not file_path:
             raise ValueError('File path is empty.')
 
-        docs = Loader().load(file_path=file_path, id_file_filter=id_file_filter)
+        docs = Loader().load(file_path=file_path)
         is_succeeded = VectorDB().add_data(new_documents=docs)
 
         if is_succeeded is None:
