@@ -225,7 +225,7 @@ AUTH_USER_MODEL='accounts.User'
 
 # Static
 STATIC_ROOT = '/app/staticfiles'
-STATIC_URL = '/static/'
+STATIC_URL = 'django-static/'
 
 # Media
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
