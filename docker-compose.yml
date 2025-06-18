@@ -12,6 +12,7 @@ services:
       # Volume để Certbot lưu trữ chứng chỉ
       - ./nginx/certs:/etc/nginx/certs:ro
       - staticfiles_data:/var/www/staticfiles:ro
+      - ./react/build:/var/www/frontend:ro
     depends_on:
       - web
     restart: unless-stopped
