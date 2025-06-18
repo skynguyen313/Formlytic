@@ -1,0 +1,51 @@
+server {
+    listen 80;
+    server_name www.vmu-sktt.io.vn vmu-sktt.io.vn;
+
+    return 301 https://www.vmu-sktt.io.vn$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name www.vmu-sktt.io.vn;
+
+    ssl_certificate /etc/nginx/certs/live/www.vmu-sktt.io.vn/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/live/www.vmu-sktt.io.vn/privkey.pem;
+    ssl_trusted_certificate /etc/nginx/certs/live/www.vmu-sktt.io.vn/chain.pem; # Tùy chọn, certbot thường đặt chain.pem riêng
+    
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    resolver 8.8.8.8 8.8.4.4 valid=300s;
+    resolver_timeout 5s;
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+
+    client_max_body_size 50M;
+
+    location ~ /\. {
+        deny all;
+    }
+
+    location ~* \.(py|sh|env|log|ini|bak|swp|conf|yml|yaml)$ {
+        deny all;
+    }
+
+    location = /Dockerfile {
+        deny all;
+    }
+
+    location / {
+        proxy_pass http://web:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
