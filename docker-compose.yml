@@ -36,13 +36,16 @@ services:
             uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --workers 4"
   certbot:
     image: certbot/certbot
-    volumes:
-      - ./nginx/certbot:/var/www/certbot:rw
-      - ./nginx/certs:/etc/letsencrypt:rw # Certbot sẽ lưu chứng chỉ vào đây
-    # entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $$; done;'" # Sẽ cấu hình sau
-    command: ["certonly", "--webroot", "--webroot-path=/var/www/certbot", "--email nguyenchatonly@gmail.com", "--agree-tos", "--no-eff-email", "-d www.vmu-sktt.io.vn"]
-    # Thêm --staging để test trước khi dùng chứng chỉ thật (tránh bị giới hạn rate limit)
-    # command: ["certonly", "--webroot", "--webroot-path=/var/www/certbot", "--email your_email@example.com", "--agree-tos", "--no-eff-email", "-d www.vmu-sktt.io.vn", "-d vmu-sktt.io.vn", "--staging"]
+    container_name: certbot-1
+    command: >
+      certonly # <-- THÊM LỆNH PHỤ NÀY VÀO
+      --webroot 
+      -w /var/www/certbot
+      --email nguyenchatonly@gmail.com
+      -d your-domain.com # Thay bằng tên miền thật của bạn
+      --agree-tos
+      --no-eff-email
+      --force-renewal
              
   celery:
     build:
