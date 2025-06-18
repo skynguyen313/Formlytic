@@ -7,11 +7,12 @@ services:
       - "443:443"
     volumes:
       # Tạm thời mount cấu hình HTTP để Certbot hoạt động
-      - ./nginx/default_http.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/default_https.conf:/etc/nginx/conf.d/default.conf:ro
       # Volume để Nginx phục vụ Certbot challenge files
       - ./nginx/certbot:/var/www/certbot:ro
       # Volume để Certbot lưu trữ chứng chỉ
       - ./nginx/certs:/etc/nginx/certs:ro
+      - staticfiles_data:/var/www/staticfiles:ro
     depends_on:
       - web
     restart: unless-stopped
@@ -37,15 +38,17 @@ services:
   certbot:
     image: certbot/certbot
     container_name: certbot-1
+    volumes:
+      - ./nginx/certbot:/var/www/certbot
+      - ./nginx/certs:/etc/nginx/certs
     command: >
-      certonly # <-- THÊM LỆNH PHỤ NÀY VÀO
+      certonly
       --webroot 
       -w /var/www/certbot
       --email nguyenchatonly@gmail.com
-      -d your-domain.com # Thay bằng tên miền thật của bạn
+      -d vmu-sktt.io.vn -d www.vmu-sktt.io.vn
       --agree-tos
       --no-eff-email
-      --force-renewal
              
   celery:
     build:
