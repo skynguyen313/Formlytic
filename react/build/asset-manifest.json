@@ -1,8 +1,10 @@
 {
   "files": {
     "main.css": "/static/css/main.bfde5d4b.css",
-    "main.js": "/static/js/main.21c49d8e.js",
+    "main.js": "/static/js/main.d07c82ec.js",
+    "static/media/student.png": "/static/media/student.9153125f27a9e229b2b1.png",
     "static/media/logo-vmu.png": "/static/media/logo-vmu.f9ae0393b6ca16e6c312.png",
+    "static/media/staff.jpg": "/static/media/staff.50f70e4412dfcbc7055d.jpg",
     "static/media/quicksand-latin-ext-400-normal.woff": "/static/media/quicksand-latin-ext-400-normal.b9181a59953639a96b74.woff",
     "static/media/quicksand-latin-400-normal.woff": "/static/media/quicksand-latin-400-normal.a91d68cba4da503ad301.woff",
     "static/media/quicksand-latin-400-normal.woff2": "/static/media/quicksand-latin-400-normal.c528d5140938c55dd062.woff2",
@@ -12,10 +14,10 @@
     "static/media/quicksand-vietnamese-400-normal.woff2": "/static/media/quicksand-vietnamese-400-normal.cba54407c8810c1dc7c0.woff2",
     "index.html": "/index.html",
     "main.bfde5d4b.css.map": "/static/css/main.bfde5d4b.css.map",
-    "main.21c49d8e.js.map": "/static/js/main.21c49d8e.js.map"
+    "main.d07c82ec.js.map": "/static/js/main.d07c82ec.js.map"
   },
   "entrypoints": [
     "static/css/main.bfde5d4b.css",
-    "static/js/main.21c49d8e.js"
+    "static/js/main.d07c82ec.js"
   ]
 }
