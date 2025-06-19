@@ -59,8 +59,30 @@ class Chatbot:
     def call_model(self, state: StateManager):
         question = state["input"]
         current_intent = state.get("current_intent", "1")   
-        if current_intent == "0":
-            response = self.rag_chain.invoke(state)
+        
+        is_sktt = state.get("is_sktt", False)
+        
+        if is_sktt:
+            response = self.call_sktt_model(state)
+            return response
+        else:
+            if current_intent == "0":
+                response = self.rag_chain.invoke(state)
+                
+                return {
+                    "chat_history": [
+                        HumanMessage(state["input"]),
+                        AIMessage(response["answer"]),
+                    ],
+                    "context": response["context"],
+                    "answer": response["answer"],
+                    "current_intent": current_intent,
+                }
+                
+            relevant_docs = self.retriever.invoke(question)
+            state["context"] = "\n".join([doc.page_content for doc in relevant_docs])
+
+            response = self.rag_chain.invoke(state)        
             
             return {
                 "chat_history": [
@@ -71,11 +93,64 @@ class Chatbot:
                 "answer": response["answer"],
                 "current_intent": current_intent,
             }
-            
-        relevant_docs = self.retriever.invoke(question)
-        state["context"] = "\n".join([doc.page_content for doc in relevant_docs])
 
-        response = self.rag_chain.invoke(state)        
+    def call_sktt_model(self, state: StateManager):
+        from langchain.prompts import ChatPromptTemplate
+        
+        template = """
+        # DIRECTIVE
+Mục tiêu duy nhất của bạn là cung cấp các câu trả lời chính xác và hữu ích cho các câu hỏi của người dùng *chỉ* liên quan đến sức khỏe tinh thân người dùng. Bạn phải sử dụng thông tin ngữ cảnh được cung cấp bên dưới để tạo ra câu trả lời của mình.
+# PERSONA DEFINITION
+Bạn là một trợ lý hỗ trợ giải đáp thắc mắc của người dùng. Nhiệm vụ của bạn là:
+- Đưa ra câu trả lời mang tính hướng dẫn.
+- Dựa vào kết quả của các bài khảo sát tâm lý để đưa ra các khuyến nghị tư vấn tâm lý cho người dùng.
+# CORE
+# BEHAVIORAL PROTOCOLS
+- **Bảo mật thông tin:** Bạn sẽ được cung cấp một `ngữ cảnh` chứa thông tin truy vấn liên quan và kết quả bài đánh giá tâm lý. Bạn phải xem đây là nguồn thông tin duy nhất và tích hợp vào câu trả lời một cách tự nhiên. Không được tiết lộ rằng bạn đang sử dụng thông tin từ ngữ cảnh được cung cấp.
+- **Tuân thủ phạm vi:** Bạn hãy phân tích ngữ cảnh để biết lĩnh vực mà mình tư vấn. Nếu câu hỏi nằm ngoài lĩnh vực đó, bạn phải từ chối trả lời và nhẹ nhàng nhắc lại chức năng chuyên biệt của mình (ví dụ: "Tôi chưa tìm thấy thông tin bạn muốn hỏi, xin hãy cung cấp chi tiết hơn.").
+- **Cách xử lý khi không chắc chắn:** Nếu ngữ cảnh không chứa thông tin rõ ràng hoặc câu hỏi mơ hồ, bạn phải yêu cầu người dùng làm rõ.
+# MEMORY
+Lịch sử trò chuyện:
+{chat_history}
+# KNOWLEDGE BASE
+Ngữ cảnh:
+{context}
+Kết quả các bài đánh giá tâm lý (nếu có): 
+{answer_query}
+# CURRENT QUERY
+Người dùng: Hãy phân tích kết quả bài đánh giá tâm lý của tôi dựa trên context
+# RESPONSE
+Trợ lý:
+""".strip()
+        
+        
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", template),
+        ])
+        
+        context = """1. Mức độ nhẹ – vừa
+Nội dung tư vấn: Kết quả rối loạn mức độ nhẹ hoặc vừa không đồng nghĩa với bệnh tâm thần mà là cảnh báo tình trạng cảm xúc bị ảnh hưởng. 
+-	Những việc nên làm:
++ Tập cường hoạt động thể chất: chọn môn thể thao yêu thích (đi bộ, đạp xe, yoga….), tập tối thiểu 5 ngày/tuần, mỗi lần tập 45-60 phút.
++ Tập thở sâu
++ Tăng tương tác với người thân, bạn, đồng nghiệp, không giữ tâm lý tiêu cực một mình
++ Nghe nhạc, thư giãn
++ Quản lý thời gian, giảm tải công việc
+-	Những việc không nên làm: 
++ Uống rượu, bia
++ Sử dụng chất kích thích
++ Sử dụng thiết bị điện tử vào ban đêm
+Khuyến nghị: Theo dõi lại sau 2–4 tuần. Nếu triệu chứng không cải thiện, chuyển sang nhóm tư vấn sâu hoặc y tế chuyên khoa.
+2. Mức độ nặng – rất nặng
+- Cần liên hệ với Bác sĩ tâm thần hoặc chuyên gia tư vấn tâm lý để được tư vấn, điều trị kịp thời."""
+
+        prompt = prompt.format(
+            chat_history=state["chat_history"],
+            context=state["context"],
+            answer_query=state["answer_query"]
+        )
+        
+        response = self.llm_4o.invoke(prompt)
         
         return {
             "chat_history": [
@@ -83,10 +158,9 @@ class Chatbot:
                 AIMessage(response["answer"]),
             ],
             "context": response["context"],
-            "answer": response["answer"],
-            "current_intent": current_intent,
+            "answer": response["answer"]
         }
-
+        
 
     def setup_workflow(self):
         self.workflow = StateGraph(state_schema=StateManager)
@@ -107,7 +181,7 @@ class Chatbot:
         self.app = self.workflow.compile(checkpointer=self.memory)
         return self.app
 
-    def ask(self, question: str, config: dict, user_id: int):
+    def ask(self, question: str, config: dict, user_id: int, is_sktt:bool = False):
         
         clean_question = preprocess_text(question)
         
@@ -118,6 +192,7 @@ class Chatbot:
             "answer_query": "",
             "answer": "",
             "current_intent": "",
+            "is_sktt": is_sktt,
             "user_id": user_id,
         }
         

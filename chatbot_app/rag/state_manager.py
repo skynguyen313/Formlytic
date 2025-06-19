@@ -11,5 +11,6 @@ class StateManager(TypedDict):
     answer_query: str
     answer: str
     current_intent: str
+    is_sktt: bool
     user_id: int
     
