@@ -41,7 +41,8 @@ def update_organization(sender, instance, created, **kwargs):
                     f'Thông tin đăng nhập:\n'
                     f'  • Email (username): {instance.owner_email}\n'
                     f'  • Mật khẩu tạm thời: {random_password}\n\n'
-                    f'Vui lòng đăng nhập và đổi mật khẩu ngay sau khi nhận được email này.\n\n'
+                    f'Vui lòng đăng nhập và đổi mật khẩu ngay sau khi nhận được email này.\n'
+                    f'Bạn có thể sử dụng tài khoản này để truy cập vào địa chỉ trang quản lý của bạn tại đây: https://www.vmu-sktt.io.vn/login/\n\n'
                     f'Cảm ơn bạn!'
                 )
                 send_organization_email.delay(subject, body, instance.owner_email)
@@ -51,7 +52,7 @@ def update_organization(sender, instance, created, **kwargs):
                 body = (
                     f'Chào {instance.owner_full_name},\n\n'
                     f'Bạn vừa được chỉ định làm quản trị viên của tổ chức {instance.organization_name}.\n'
-                    f'Bạn có thể sử dụng tài khoản hiện tại của mình để truy cập.\n\n'
+                    f'Bạn có thể sử dụng tài khoản này để truy cập vào địa chỉ trang quản lý của bạn tại đây: https://www.vmu-sktt.io.vn/login/\n\n'
                     f'Cảm ơn bạn!'
                 )
                 send_organization_email.delay(subject, body, instance.owner_email)

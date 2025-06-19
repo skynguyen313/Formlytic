@@ -57,7 +57,8 @@ class OrganizationSerializer(serializers.ModelSerializer):
                 f'Thông tin đăng nhập:\n'
                 f'  • Email (username): {email}\n'
                 f'  • Mật khẩu tạm thời: {random_password}\n\n'
-                f'Vui lòng đăng nhập và đổi mật khẩu ngay sau khi nhận được email này.\n\n'
+                f'Vui lòng đăng nhập và đổi mật khẩu ngay sau khi nhận được email này.\n'
+                f'Bạn có thể sử dụng tài khoản này để truy cập vào địa chỉ trang quản lý của bạn tại đây: https://www.vmu-sktt.io.vn/login/\n\n'
                 f'Cảm ơn bạn!'
             )
             send_organization_email.delay(subject, body, email)
@@ -67,7 +68,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
             body = (
                 f'Chào {owner_full_name},\n\n'
                 f'Bạn vừa được chỉ định làm quản trị viên của tổ chức {name}.\n'
-                f'Bạn có thể sử dụng tài khoản hiện tại của mình để truy cập.\n\n'
+                f'Bạn có thể sử dụng tài khoản này để truy cập vào địa chỉ trang quản lý của bạn tại đây: https://www.vmu-sktt.io.vn/login/\n\n'
                 f'Cảm ơn bạn!'
             )
             send_organization_email.delay(subject, body, email)
@@ -132,7 +133,8 @@ class PartnerSerializer(serializers.ModelSerializer):
                 f'Thông tin đăng nhập:\n'
                 f'  • Email (username): {email}\n'
                 f'  • Mật khẩu tạm thời: {random_password}\n\n'
-                f'Vui lòng đăng nhập và đổi mật khẩu ngay sau khi nhận được email này.\n\n'
+                f'Vui lòng đăng nhập và đổi mật khẩu ngay sau khi nhận được email này.\n'
+                f'Bạn có thể sử dụng tài khoản này để truy cập vào địa chỉ trang quản lý của bạn tại đây: https://www.vmu-sktt.io.vn/login/\n\n'
                 f'Cảm ơn bạn!'
             )
         else:
@@ -144,7 +146,7 @@ class PartnerSerializer(serializers.ModelSerializer):
             body = (
                 f'Chào bạn,\n\n'
                 f'Bạn vừa được thêm làm đối tác của tổ chức {organization.name}.\n'
-                f'Bạn có thể sử dụng tài khoản hiện tại của mình để truy cập.\n\n'
+                f'Bạn có thể sử dụng tài khoản này để truy cập vào địa chỉ trang quản lý của bạn tại đây: https://www.vmu-sktt.io.vn/login/\n\n'
                 f'Cảm ơn bạn!'
             )
         
