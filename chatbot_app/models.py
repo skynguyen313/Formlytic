@@ -12,7 +12,6 @@ class Document(models.Model):
 
     file_path = models.FileField(upload_to='documents/', storage=CustomStorage())
     file_name = models.CharField(max_length=255, null=False)
-    key = models.CharField(max_length=5, null=False)
     uploaded_at = models.DateTimeField(auto_now_add=True, null=False)
     author = models.CharField(max_length=255, null=False, blank=True)
     status = models.CharField(

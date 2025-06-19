@@ -24,9 +24,7 @@ def load_post_save_document(sender, instance, created, **kwargs):
             add_document_task_thread,
             instance.id,
             instance.file_path.path,
-            instance.key
         ))
     else:
         chatbot = apps.get_app_config('chatbot_app').chatbot
         chatbot.reset()
-

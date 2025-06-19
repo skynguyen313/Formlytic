@@ -93,9 +93,4 @@ class UserPublishSurveyResult(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='user_publishedsurveys_results', null=True, blank=True)
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE, related_name='user_publishedsurveys_results', null=True, blank=True)
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'publish_survey'], name='unique_user_publishsurvey'
-            )
-        ]
         db_table = 'psychology_user_publish_survey_result'

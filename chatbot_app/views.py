@@ -13,9 +13,8 @@ from .serializers import (
     FAQSerializer,
     InputQASerializer,
     OutputQASerializer,
-    QAHistorySerializer,
 )
-from core.permissions import IsStaffUser, IsUser
+from core.permissions import IsOrganizationUser, IsCustomerUser
 from core.ratelimit import rate_limit_decorator
 from core.pagination import CustomPagination
 
@@ -23,26 +22,15 @@ chatbot = apps.get_app_config('chatbot_app').chatbot
 
 
 class QAViewSet(viewsets.ViewSet):
-    permission_classes = [IsUser]
-
-    @rate_limit_decorator(rate='5/m')
     def create(self, request):
         serializer = InputQASerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             question = serializer.validated_data['question']
             thread_id = serializer.validated_data['thread_id']
-            key = serializer.validated_data['key']
-            student_id = serializer.validated_data['student_id']
+            is_sktt = serializer.validated_data.get('is_sktt', False)
+            user_id = 1
             config = {'configurable': {'thread_id': thread_id, 'stream_mode': 'updates'}}
-            current_intent, answer = chatbot.ask(question, config, key, student_id)
-
-            QAHistory.objects.create(
-                user = request.user,
-                thread_id=thread_id,
-                intent=current_intent,
-                question=question,
-                answer=answer,
-            )
+            current_intent, answer = chatbot.ask(question, config, user_id, is_sktt=is_sktt)
 
             output_serializer = OutputQASerializer(data={'answer': answer})
             if output_serializer.is_valid():
@@ -52,7 +40,7 @@ class QAViewSet(viewsets.ViewSet):
 
 
 class DocumentViewSet(viewsets.ViewSet):
-    permission_classes = [IsStaffUser]
+    permission_classes = [IsOrganizationUser]
 
     @rate_limit_decorator(rate='20/m')
     def list(self, request):
@@ -96,9 +84,9 @@ class FAQViewSet(viewsets.ViewSet):
     
     def get_permissions(self):
         if self.action == 'list':
-            permission_classes = [IsUser]
+            permission_classes = [IsCustomerUser]
         else:
-            permission_classes = [IsStaffUser]
+            permission_classes = [IsOrganizationUser]
         return [permission() for permission in permission_classes]
 
     @rate_limit_decorator(rate='20/m')
@@ -136,35 +124,3 @@ class FAQViewSet(viewsets.ViewSet):
         faq.save()
         cache.delete('faq_list')
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-class QAHistoryViewSet(viewsets.ViewSet):
-    permission_classes = [IsStaffUser]
-    pagination_class = CustomPagination
-
-    def list(self, request):
-        student_id = request.query_params.get('student_id')
-        course = request.query_params.get('course')
-        department = request.query_params.get('department')
-        major = request.query_params.get('major')
-        school_class = request.query_params.get('school_class')
-
-        filters = {'user__student__isnull': False}
-
-        if student_id:
-            filters['user__student__id'] = student_id
-        else:
-            if department:
-                filters['user__student__department_id__in'] = department.split(',')
-            if major:
-                filters['user__student__major_id__in'] = major.split(',')
-            if course:
-                filters['user__student__course_id__in'] = course.split(',')
-            if school_class:
-                filters['user__student__school_class_id__in'] = school_class.split(',')
-
-        qa_histories = QAHistory.objects.filter(**filters).order_by('-created_at')
-        
-        paginator = self.pagination_class()
-        page = paginator.paginate_queryset(qa_histories, request)
-        serializer = QAHistorySerializer(page, many=True)
-        return paginator.get_paginated_response(serializer.data)
