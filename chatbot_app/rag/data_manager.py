@@ -11,17 +11,18 @@ class DataManager:
         intent = state["current_intent"]
 
         if intent == "0":
-           result_query = CustomerFetcher().get_data()
+           result_query = CustomerFetcher().get_data()           
            return {"result_query": result_query}
         elif intent == "1":
-            result_query = CustomerPsychologyFetcher().get_data()
+            # result_query = CustomerPsychologyFetcher().get_data()
+            result_query = state["result"]
             return {"result_query": result_query}
         
         
     def generate_answer(self, state: StateManager):
         """Answer question using retrieved information as context and store the result in state."""
         input_question = state.get("input")
-        data_result = state.get("result_query")
+        data_result = state.get("result")
 
         prompt = (
             "Given the following user question"
@@ -34,6 +35,7 @@ class DataManager:
         try:
             response = self.llm.invoke(prompt)
             answer = response.content
+            print("[D]answer:", answer)
             return {"answer_query": answer}
         except Exception as e:
             error_msg = f"Error generating answer: {str(e)}"

@@ -13,3 +13,4 @@ class StateManager(TypedDict):
     current_intent: str
     is_sktt: bool
     user_id: int
+    result: dict

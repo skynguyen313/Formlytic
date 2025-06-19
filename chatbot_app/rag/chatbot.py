@@ -145,7 +145,7 @@ Khuyến nghị: Theo dõi lại sau 2–4 tuần. Nếu triệu chứng không 
         prompt = prompt.format(
             chat_history=state["chat_history"],
             context=state["context"],
-            answer_query=state["answer_query"]
+            answer_query=state["result"]
         )
         
         response = self.llm_4o.invoke(prompt)
@@ -190,7 +190,7 @@ Khuyến nghị: Theo dõi lại sau 2–4 tuần. Nếu triệu chứng không 
         self.app = self.workflow.compile(checkpointer=self.memory)
         return self.app
 
-    def ask(self, question: str, config: dict, user_id: int, is_sktt:bool = False):
+    def ask(self, question: str, config: dict, user_id: int, is_sktt:bool = False, result: dict = None):
         
         clean_question = preprocess_text(question)
         
@@ -203,6 +203,7 @@ Khuyến nghị: Theo dõi lại sau 2–4 tuần. Nếu triệu chứng không 
             "current_intent": "",
             "is_sktt": is_sktt,
             "user_id": user_id,
+            "result": result,
         }
         print("is_sktt:", state["is_sktt"])
         

@@ -28,9 +28,10 @@ class QAViewSet(viewsets.ViewSet):
             question = serializer.validated_data['question']
             thread_id = serializer.validated_data['thread_id']
             is_sktt = serializer.validated_data.get('is_sktt', False)
+            result = serializer.validated_data.get('result', None)
             user_id = 1
             config = {'configurable': {'thread_id': thread_id, 'stream_mode': 'updates'}}
-            current_intent, answer = chatbot.ask(question, config, user_id, is_sktt=is_sktt)
+            current_intent, answer = chatbot.ask(question, config, user_id, is_sktt=is_sktt, result=result)
 
             output_serializer = OutputQASerializer(data={'answer': answer})
             if output_serializer.is_valid():

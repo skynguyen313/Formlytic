@@ -27,6 +27,7 @@ class InputQASerializer(serializers.Serializer):
     question = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     thread_id = serializers.CharField(required=True)
     is_sktt = serializers.BooleanField(default=False, required=False)
+    result = serializers.JSONField(required=False, allow_null=True)
     class Meta:
         fields = ['question', 'thread_id']
 
